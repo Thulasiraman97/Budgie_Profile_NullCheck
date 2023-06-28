@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite">
+    <test verbose="2" preserve-order="true"
+          name="C:/Users/HEPL/IdeaProjects/Budgie_Profile_details_TestNG/src/main/java/org/example/Budgie_ProfileDetails.java">
+        <classes>
+            <class name="org.example.Budgie_ProfileDetails">
+                <parameter name="Login" value="900982"></parameter>
+                <parameter name="password" value="123"></parameter>
+                <methods>
+                    <include name="main"/>
+                    <include name="BasicDetails"/>
+                    <include name="Contact"/>
+                    <include name="WorkingInformation"/>
+                    <include name="HRdepartment"/>
+                    <include name="AccountInfo"/>
+                    <include name="logout"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

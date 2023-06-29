@@ -4,11 +4,9 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
@@ -18,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 public class Budgie_ProfileDetails {
     public static WebDriver driver;
+    public WebDriverWait wait;
     public Logger log= (Logger) LogManager.getLogger(Budgie_ProfileDetails.class.getName());
 
 @Parameters({"Login","password"})
@@ -33,28 +32,28 @@ public class Budgie_ProfileDetails {
         driver.findElement(By.id("employee_id")).sendKeys(Login);
         driver.findElement(By.id("login_password")).sendKeys(password);
         driver.findElement(By.id("btnLogin")).click();
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("Home")));
         driver.navigate().to("http://216.48.191.170/budgie_test/public/index.php/candidate_profile");
 
     }
 @Test
-     void BasicDetails() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+     void BasicDetails() throws InterruptedException {
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.partialLinkText("Home")));
         //Display the name and Role
-        WebElement name = driver.findElement(By.xpath("//div[@class='col-sm-12 col-lg-4 order-sm-0 order-xl-1']//div//div//a"));
-        WebElement role = driver.findElement(By.xpath("//div[@class='col-sm-12 col-lg-4 order-sm-0 order-xl-1']//div//div[2]"));
+        WebElement name = driver.findElement(By.id("pro_name"));
+        WebElement role = driver.findElement(By.id("designation"));
         System.out.println(name.getText() + " : " + role.getText());
         log.info(name.getText() + " : " + role.getText());
         //display the mail,DOB,Contact Us,Work Location
-        List<WebElement> Profileheading = driver.findElements(By.xpath("//div[@class='text-center']//div//div//div//div//div//div//h6"));
+        List<WebElement> Profileheading = driver.findElements(By.xpath("//div[@class='text-center']//h6"));
         //display the emailValue,DOB Value
-        WebElement email = driver.findElement(By.xpath("//div[@class='text-center']//div//div//div//div//div//div//div"));
-        WebElement DOB = driver.findElement(By.xpath("//div[@class='text-center']//div//div//div//div//div[2]//div//div"));
+        WebElement email = driver.findElement(By.id("email"));
+        WebElement DOB = driver.findElement(By.id("dob"));
         //display the Contact Us and location Value
-        WebElement ContactUs = driver.findElement(By.xpath("//div[@class='col-sm-6 col-lg-4 order-sm-2 order-xl-2']//div//div//div//span//a"));
-        WebElement location = driver.findElement(By.xpath("//div[@class='col-sm-6 col-lg-4 order-sm-2 order-xl-2']//div//div[2]//a"));
+        WebElement ContactUs = driver.findElement(By.id("contact_no"));
+        WebElement location = driver.findElement(By.id("worklocation"));
         for (WebElement BioHead : Profileheading) {
             String bio = BioHead.getText();
             System.out.print(bio + " : ");
@@ -93,8 +92,8 @@ public class Budgie_ProfileDetails {
 
         int size = Math.min(details.size(), detailsValue.size());
         for (int i = 0; i < size; i++) {
-            String detailText = details.get(i).getText();
-            String valueText = detailsValue.get(i).getText();
+            String detailText = details.get(i).getAttribute("textContent").trim();
+            String valueText = detailsValue.get(i).getAttribute("textContent").trim();
             if (valueText.isEmpty()) {
                 valueText = " ";
             }
@@ -110,15 +109,7 @@ public class Budgie_ProfileDetails {
         }
     }
     @Test(dependsOnMethods = {"BasicDetails"})
-    void Contact() throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-        WebElement contactTab = driver.findElement(By.linkText("Contact"));
-        Actions actions = new Actions(driver);
-        Thread.sleep(2000);
-        actions.moveToElement(contactTab).click().perform();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='v-pills-messages']/nav/span")));
+    void Contact(){
         System.out.println("----------------------------------------------------------------");
         log.info("----------------------------------------------------------------");
         WebElement Contact = driver.findElement(By.linkText("Contact"));
@@ -128,7 +119,7 @@ public class Budgie_ProfileDetails {
         log.info("----------------------------------------------------------------");
 
         WebElement phone=driver.findElement(By.xpath("(//div[@class='col-md-6'])[5]//strong"));
-        WebElement phoneValue=driver.findElement(By.xpath("(//div[@class='col-md-6'])[5]//p[@id='p_num_view']"));
+        WebElement phoneValue=driver.findElement(By.id("p_num_view"));
         String Phone=phone.getAttribute("textContent");
         String PhoneValue=phoneValue.getAttribute("textContent");
         System.out.println(Phone+" "+PhoneValue);
@@ -140,15 +131,15 @@ public class Budgie_ProfileDetails {
         System.out.println(SecPhone+" "+SecPhoneValue);
         log.info(SecPhone+" "+SecPhoneValue);
         WebElement email=driver.findElement(By.xpath("//*[@id='v-pills-messages']//div[3]/strong"));
-        WebElement emailValue=driver.findElement(By.xpath("(//div[@class='col-md-6'])[5]//p[@id='p_num_view']"));
+        WebElement emailValue=driver.findElement(By.id("p_email_view"));
         String Email=email.getAttribute("textContent");
         String EmailValue=emailValue.getAttribute("textContent");
         List<WebElement> address=driver.findElements(By.xpath("//div[@class='col-3 pr-0']"));
         List<WebElement>addressValue=driver.findElements(By.xpath("//div[@class='col-8 pl-0']"));
         int size = Math.min(address.size(),addressValue.size());
         for (int i = 0; i < size; i++) {
-            String detailText = address.get(i).getText();
-            String valueText = addressValue.get(i).getText();
+            String detailText = address.get(i).getAttribute("textContent").trim();
+            String valueText = addressValue.get(i).getAttribute("textContent").trim();
             System.out.println(detailText + " : " + valueText);
             log.info(detailText + " : " + valueText);
             if ((PhoneValue.contains("null")||PhoneValue.equalsIgnoreCase("null"))||(SecPhoneValue.contains("null")||SecPhoneValue.equalsIgnoreCase("null"))||(EmailValue.contains("null")||EmailValue.equalsIgnoreCase("null"))||(valueText.contains("null")||valueText.equalsIgnoreCase("null"))){
@@ -163,15 +154,7 @@ public class Budgie_ProfileDetails {
         log.info(Email+" "+EmailValue);
     }
     @Test(dependsOnMethods = {"Contact"})
-    void WorkingInformation() throws InterruptedException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-        WebElement contactTab = driver.findElement(By.linkText("Working Information"));
-        Actions actions = new Actions(driver);
-        Thread.sleep(2000);
-        actions.moveToElement(contactTab).click().perform();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='v-pills-Working-Information']/nav/span")));
+    void WorkingInformation(){
         System.out.println("----------------------------------------------------------------");
         log.info("----------------------------------------------------------------");
         WebElement WorkingInformation = driver.findElement(By.linkText("Working Information"));
@@ -182,21 +165,20 @@ public class Budgie_ProfileDetails {
         List<WebElement> department=driver.findElements(By.xpath("(//div[@class='row'])[14]//strong"));
         List<WebElement>departmentValue=driver.findElements(By.xpath("(//div[@class='row'])[14]//a"));
         WebElement rfhValue=driver.findElement(By.xpath("//*[@id='v-pills-Working-Information']//div[2]/div[4]"));
-        String RFHvalue=rfhValue.getText();
+        String RFHvalue=rfhValue.getAttribute("textContent");
         WebElement email=driver.findElement(By.xpath("//*[@id='v-pills-Working-Information']//div[2]/div[5]/strong"));
         WebElement emailValue=driver.findElement(By.xpath("//*[@id='email_txt']"));
-        String Email=email.getText();
-        String Emailvalue=emailValue.getText();
+        String Email=email.getAttribute("textContent").trim();
+        String Emailvalue=emailValue.getAttribute("textContent").trim();
         WebElement Esi=driver.findElement(By.xpath("//*[@id='v-pills-Working-Information']//div[2]/div[6]/strong"));
         WebElement EsiValue=driver.findElement(By.id("esi_no_txt"));
-        String esi=Esi.getText();
-        String esiValue=EsiValue.getText();
+        String esi=Esi.getAttribute("textContent").trim();
+        String esiValue=EsiValue.getAttribute("textContent").trim();
         int size = Math.min(department.size(),departmentValue.size());
 
         for (int i = 0; i < size-2; i++) {
-
-            String detailText = department.get(i).getText();
-            String valueText = departmentValue.get(i).getText();
+            String detailText = department.get(i).getAttribute("textContent").trim();
+            String valueText = departmentValue.get(i).getAttribute("textContent").trim();
             System.out.println(detailText + " " + valueText);
             log.info(detailText + " " + valueText);
            if ((valueText.contains("null")||valueText.equalsIgnoreCase("null"))||(RFHvalue.contains("null")||RFHvalue.equalsIgnoreCase("null"))||(Emailvalue.contains("null")||Emailvalue.equalsIgnoreCase("null"))||(esiValue.contains("null")||esiValue.equalsIgnoreCase("null"))){
@@ -207,7 +189,6 @@ public class Budgie_ProfileDetails {
                break;
            }
         }
-
         System.out.println(RFHvalue);
         log.info(RFHvalue);
         System.out.println(Email+" "+Emailvalue);
@@ -216,15 +197,7 @@ public class Budgie_ProfileDetails {
         log.info(esi+" "+esiValue);
     }
     @Test(dependsOnMethods = {"WorkingInformation"})
-  void HRdepartment() throws InterruptedException {
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    JavascriptExecutor js = (JavascriptExecutor) driver;
-    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-    WebElement contactTab = driver.findElement(By.linkText("HR Information"));
-        Thread.sleep(2000);
-    Actions actions = new Actions(driver);
-    actions.moveToElement(contactTab).click().perform();
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='v-pills-Information']/nav/span")));
+  void HRdepartment()  {
         System.out.println("----------------------------------------------------------------");
         log.info("----------------------------------------------------------------");
         WebElement HRInformation = driver.findElement(By.linkText("HR Information"));
@@ -236,8 +209,8 @@ public class Budgie_ProfileDetails {
     List<WebElement> departmentValue = driver.findElements(By.xpath("(//div[@class='row'])[15]//a"));
     int size=Math.min(department.size(),departmentValue.size());
     for (int i = 0; i < size; i++) {
-        String Dept=department.get(i).getText();
-        String DeptValue=departmentValue.get(i).getText();
+        String Dept=department.get(i).getAttribute("textContent").trim();
+        String DeptValue=departmentValue.get(i).getAttribute("textContent").trim();
         System.out.println(Dept+" "+DeptValue);
         log.info(Dept+" "+DeptValue);
         if (DeptValue.contains("null")||DeptValue.equalsIgnoreCase("null")){
@@ -251,14 +224,6 @@ public class Budgie_ProfileDetails {
 }
 @Test(dependsOnMethods = {"HRdepartment"})
 void AccountInfo() throws InterruptedException {
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    JavascriptExecutor js = (JavascriptExecutor) driver;
-    js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-    WebElement contactTab = driver.findElement(By.linkText("Account Information"));
-    Actions actions = new Actions(driver);
-    Thread.sleep(2000);
-    actions.moveToElement(contactTab).click().perform();
-    wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='v-pills-Account-information']/nav/span")));
     System.out.println("----------------------------------------------------------------");
     log.info("----------------------------------------------------------------");
     WebElement Account_Information = driver.findElement(By.linkText("Account Information"));
@@ -270,8 +235,8 @@ void AccountInfo() throws InterruptedException {
     List<WebElement> accounttValue = driver.findElements(By.xpath("(//div[@class='row'])[17]//a"));
     int size=Math.min(account.size(),accounttValue.size());
     for (int i = 0; i < size; i++) {
-        String Acc=account.get(i).getText();
-        String AccValue=accounttValue.get(i).getText();
+        String Acc=account.get(i).getAttribute("textContent").trim();
+        String AccValue=accounttValue.get(i).getAttribute("textContent").trim();
         System.out.println(Acc+" "+AccValue);
         log.info(Acc+" "+AccValue);
         if (AccValue.contains("null")||AccValue.equalsIgnoreCase("null")){
